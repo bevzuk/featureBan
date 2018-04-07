@@ -3,14 +3,14 @@ class Player(object):
         self.Name = name
 
     def play(self, game, coin):
-        if game.get_card_assigned_to(self) is None:
-            game.get_new_card(self)
-            return
+        flip = coin.flip()
+        # print(self.Name + " flips " + ("TAILS" if flip == 1 else "HEADS"))
 
-        if coin.flip() == 1:
+        if flip == 1:
             self._play_tails(game)
         else:
             self._play_heads(game)
+        # print(game)
 
     def _play_tails(self, game):
         if not self._can_do_something_with_my_cards(game):
@@ -18,6 +18,10 @@ class Player(object):
             return
 
         card = game.get_card_assigned_to(self)
+        if card is None:
+            game.get_new_card(self)
+            return
+
         if card.IsLocked:
             card.unlock()
         else:
@@ -27,6 +31,9 @@ class Player(object):
         card = game.get_card_assigned_to(self)
         if card is None and len(game.column("Inbox").Cards) == 0:
             return False
+
+        if card is None and not game.column("Development").is_wip_limit_reached():
+            return True
 
         if card is not None and card.IsLocked:
             return True
@@ -41,6 +48,9 @@ class Player(object):
 
     def _help_others(self, game):
         card = game.get_card_not_assigned_to(self)
+        if card is None:
+            return
+
         if card.IsLocked:
             card.unlock()
         else:
@@ -51,4 +61,5 @@ class Player(object):
         if card is not None:
             card.lock()
         game.get_new_card(self)
+
 

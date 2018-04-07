@@ -131,7 +131,7 @@ class PlayerTests(unittest.TestCase):
         self.assertEqual(game.column("Development").Cards, [Card("Homer", True)])
         self.assertEqual(game.column("Testing").Cards, [Card("Homer", True)])
 
-    def test_PlayWithWipLimits_CoinFlipsTails_HelpOthersIfCanNotWorkOnMyCards(self):
+    def test_PlayWithWipLimits_CoinFlipsTails_HelpOthersWithTestingIfCanNotWorkOnMyCards(self):
         homer = Player("Homer")
         game = Create.game() \
             .with_inbox_column([Card()]) \
@@ -141,10 +141,23 @@ class PlayerTests(unittest.TestCase):
 
         homer.play(game, COIN_TAILS)
 
-        print(game)
         self.assertEqual(game.column("Development").Cards, [Card("Homer")])
         self.assertEqual(game.column("Testing").Cards, [])
         self.assertEqual(game.column("Done").Cards, [Card("Marge")])
+
+    def test_PlayWithWipLimits_CoinFlipsTails_HelpOthersWithDevelopmentIfCanNotWorkOnMyCards(self):
+        homer = Player("Homer")
+        game = Create.game() \
+            .with_inbox_column([Card()]) \
+            .with_development_column(cards=[Card("Marge")], wip_limit=1) \
+            .with_testing_column(cards=[], wip_limit=1) \
+            .please()
+
+        homer.play(game, COIN_TAILS)
+
+        self.assertEqual(game.column("Development").Cards, [])
+        self.assertEqual(game.column("Testing").Cards, [Card("Marge")])
+        self.assertEqual(game.column("Done").Cards, [])
 
     @staticmethod
     def test_Play_WithoutLimits():
@@ -162,11 +175,11 @@ class PlayerTests(unittest.TestCase):
                 inbox.append(Card())
             game = Create.game() \
                 .with_inbox_column(inbox) \
-                .with_development_column([], 5) \
-                .with_testing_column([], 5) \
+                .with_development_column([], 1) \
+                .with_testing_column([], 1) \
                 .please()
 
-            for steps_count in range(10):
+            for steps_count in range(20):
                 homer.play(game, coin)
                 marge.play(game, coin)
                 bart.play(game, coin)
