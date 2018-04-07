@@ -160,7 +160,7 @@ class PlayerTests(unittest.TestCase):
         self.assertEqual(game.column("Done").Cards, [])
 
     @staticmethod
-    def test_Play_WithoutLimits():
+    def test_Play():
         homer = Player("Homer")
         marge = Player("Marge")
         bart = Player("Bart")
@@ -175,8 +175,8 @@ class PlayerTests(unittest.TestCase):
                 inbox.append(Card())
             game = Create.game() \
                 .with_inbox_column(inbox) \
-                .with_development_column([], 1) \
-                .with_testing_column([], 1) \
+                .with_development_column([], 7) \
+                .with_testing_column([], 7) \
                 .please()
 
             for steps_count in range(20):
